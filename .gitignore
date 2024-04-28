@@ -1,0 +1,15 @@
+# Dependency directories
+node_modules/
+
+# Environment variables
+.env
+
+# Log files
+logs/
+
+# IDE files
+.vscode/
+.idea/
+
+# Configuration files
+*.config.js
