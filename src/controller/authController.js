@@ -5,8 +5,8 @@ const secretKey = 'SECRET_KEY_FOR_REGISTER_AND_LOGIN_IN_PHILIPH_THOMAS';
 
 exports.signup = async (req, res) => {
     try {
-        const { username, password } = req.body;
-        const user = await User.create({ username, password });
+        const { username, password,email } = req.body;
+        const user = await User.create({ username, password,email });
         res.status(201).json({ message: 'User created successfully', user });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -29,4 +29,8 @@ exports.login = async (req, res) => {
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
+};
+
+exports.signout = async (req, res) => {
+    res.json({ message: 'Sign out successful' });
 };
