@@ -2,17 +2,16 @@ const Product = require("../models/product");
 const { correctResponse, statusCode, messageResponse } = require("../utils/response");
 
 
+const Category = require('../models/categoryModel'); // Import the Category model
+
 exports.addProduct = async (req, res) => {
     try {
-        // Get the uploaded file details from req.file
         const productImg = req.file;
-        // Assuming other fields are coming from req.body
         const { productName, qty_available, productPrice, description, category_id } = req.body;
 
-        // Construct new product object with both file details and other fields
         const newProduct = {
             productName,
-            productImg: productImg.path, // Save the path of the uploaded file
+            productImg: productImg.path,
             qty_available,
             productPrice,
             description,
@@ -20,29 +19,43 @@ exports.addProduct = async (req, res) => {
         };
 
         const product = await Product.create(newProduct);
-        // res.status(201).json({ message: 'Product Created Successfully!', product });
+
+        // Update category product count if category_id is provided
+        if (category_id) {
+            await Category.findByIdAndUpdate(category_id, { $inc: { productCount: 1 } });
+        }
+
         return correctResponse({
             res,
             statusCode: statusCode.OK,
-            msg: messageResponse.UPDATED,
+            msg: messageResponse.ADDED,
             data: product
-          });
-
-
+        });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
 
+
 exports.editProduct = async (req, res) => {
     try {
         const productId = req.params.productId;
-        // Get the uploaded file details from req.file
         const productImg = req.file;
-        // Assuming other fields are coming from req.body
         const { productName, qty_available, productPrice, description, category_id } = req.body;
 
-        // Construct updated product object with new data
+        // Find the existing product
+        const existingProduct = await Product.findById(productId);
+        if (!existingProduct) {
+            return correctResponse({
+                res,
+                statusCode:statusCode.NOT_FOUND,
+                msg:messageResponse.NOT_FOUND,
+            })
+        }
+
+        // Store the existing category_id for comparison
+        const previousCategoryId = existingProduct.category_id;
+
         const updatedProductData = {
             ...(productName && { productName }),
             ...(productImg && { productImg: productImg.path }),
@@ -52,46 +65,57 @@ exports.editProduct = async (req, res) => {
             ...(category_id && { category_id }),
         };
 
-        // Update the product using spread operator to merge existing product data with updated data
+        // Update the product
         const product = await Product.findByIdAndUpdate(productId, updatedProductData, { new: true });
 
-        if (!product) {
-            return correctResponse({
-                res,
-                statusCode:statusCode.NOT_FOUND,
-                msg:messageResponse.NOT_FOUND,
-            })
+        // If category_id is updated, update product count in categories
+        if (category_id && category_id.toString() !== previousCategoryId.toString()) {
+            // Decrement product count of previous category
+            await Category.findByIdAndUpdate(previousCategoryId, { $inc: { productCount: -1 } });
+            // Increment product count of new category
+            await Category.findByIdAndUpdate(category_id, { $inc: { productCount: 1 } });
         }
 
-        // res.status(200).json({ message: 'Product updated successfully!', product });
         return correctResponse({
             res,
             statusCode: statusCode.OK,
             msg: messageResponse.UPDATED,
             data: product
-          });
+        });
 
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
 
+
 exports.getProducts = async (req, res) => {
     try {
-        // Retrieve all products from the database
-        const products = await Product.find();
+        // Check if category_id is provided in the query parameters
+        const categoryId = req.query.categoryId;
+
+        let products;
+
+        // If categoryId is provided, fetch products by category
+        if (categoryId) {
+            // Retrieve all products with the given category_id
+            products = await Product.find({ category_id: categoryId });
+        } else {
+            // If categoryId is not provided, retrieve all products
+            products = await Product.find();
+        }
 
         // If there are no products found, return a 404 Not Found response
         if (!products || products.length === 0) {
             return correctResponse({
                 res,
-                statusCode:statusCode.NOT_FOUND,
-                msg:messageResponse.NOT_FOUND,
-            })
+                statusCode: statusCode.NOT_FOUND,
+                msg: messageResponse.NOT_FOUND,
+            });
         }
 
         // Concatenate the server path with the productImg path in each product
-        const server_path = process.env.SERVER_PATH ; // Assuming this is the server path
+        const server_path = process.env.SERVER_PATH; // Assuming this is the server path
         const productsWithFullImagePath = products.map(product => {
             return {
                 ...product._doc,
@@ -108,7 +132,7 @@ exports.getProducts = async (req, res) => {
         });
     } catch (error) {
         // If an error occurs during the operation, return a 500 Internal Server Error response
-       return correctResponse({
+        return correctResponse({
             res,
             statusCode: statusCode.INTERNAL_SERVER_ERROR,
             msg: error.message
@@ -116,12 +140,13 @@ exports.getProducts = async (req, res) => {
     }
 };
 
+
 exports.getProductById = async (req, res) => {
     try {
         const productId = req.params.productId;
 
         // Retrieve the product from the database by its ID
-        const product = await Product.findById(productId);
+        const product = await Product.findById(productId).populate("category_id");
 
         // If the product is not found, return a 404 Not Found response
         if (!product) {
@@ -169,9 +194,14 @@ exports.deleteProductById = async (req, res) => {
         if (!deletedProduct) {
             return correctResponse({
                 res,
-                statusCode:statusCode.NOT_FOUND,
-                msg:messageResponse.NOT_FOUND,
-            })
+                statusCode: statusCode.NOT_FOUND,
+                msg: messageResponse.NOT_FOUND,
+            });
+        }
+
+        // If the product had a category_id, decrement the product count in the associated category
+        if (deletedProduct.category_id) {
+            await Category.findByIdAndUpdate(deletedProduct.category_id, { $inc: { productCount: -1 } });
         }
 
         // Return a success message indicating that the product has been deleted

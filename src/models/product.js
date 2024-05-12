@@ -7,9 +7,9 @@ const productSchema = new mongoose.Schema({
     qty_available: { type: Number, required: true },
     productPrice: { type: Number, required: true },
     description: {
-        ingredients: [{ type: String }],
+        ingredients: { type: String },
         uses: { type: String },
-        related: { type: mongoose.Schema.Types.ObjectId, ref: "Related" }
+        related: [{ type: mongoose.Schema.Types.ObjectId, ref: "Related" }]
     },
     category_id: { type: mongoose.Schema.Types.ObjectId, ref: "Category" }
 }, { timestamps: true });

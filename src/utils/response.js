@@ -56,7 +56,7 @@ const correctResponse = ({ res, statusCode, msg, data }) => {
     ACCOUNT_NOT_FOUND: "Account Not Found",
     ACCOUNT_EXIST: "Account Already Exist",
     BAD_REQUEST: "Bad Request",
-    MEMBER_EXIST: "Member Already Exist",
+    MEMBER_EXIST: "Your Requested Data Alredy Exist",
     DATA_EXPORT: "Data Export Successfully",
   };
   
