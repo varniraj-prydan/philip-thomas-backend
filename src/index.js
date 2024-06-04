@@ -13,7 +13,7 @@ app.use("/src",express.static("./src"))
 app.use(require('./routes/route'))
 
 // require('./uploads')
-
+ 
 app.use(bodyparser.urlencoded({extended:true}));
 app.use(express.static("./uploads"))
 

@@ -32,6 +32,7 @@ exports.createCategory = async (req, res) => {
         });
     } catch (error) {
         // res.status(500).json({ message: error.message });
+        console.log(error)
         return correctResponse({
             res,
             statusCode: statusCode.INTERNAL_SERVER_ERROR,
@@ -44,7 +45,13 @@ exports.createCategory = async (req, res) => {
 exports.getAllCategories = async (req, res) => {
     try {
         const categories = await Category.find();
-        res.json(categories);
+        // res.json(categories);
+        return correctResponse({
+            res,
+            statusCode: statusCode.OK,
+            msg: messageResponse.DATA_FETCHED,
+            data:categories
+        });
     } catch (error) {
         return correctResponse({
             res,
@@ -68,7 +75,13 @@ exports.getCategoryById = async (req, res) => {
             });
         }
 
-        res.json(category);
+        // res.json(category);
+        return correctResponse({
+            res,
+            statusCode: statusCode.OK,
+            msg: messageResponse.DATA_FETCHED,
+            data:category
+        });
     } catch (error) {
         return correctResponse({
             res,
@@ -94,7 +107,13 @@ exports.updateCategory = async (req, res) => {
             });
         }
 
-        res.json({ message: "Category updated successfully", category: updatedCategory });
+        // res.json({ message: "Category updated successfully", category: updatedCategory });
+        return correctResponse({
+            res,
+            statusCode: statusCode.OK,
+            msg: messageResponse.UPDATED,
+            data:updatedCategory
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -115,7 +134,13 @@ exports.deleteCategory = async (req, res) => {
             });
         }
 
-        res.json({ message: "Category deleted successfully", category: deletedCategory });
+        // res.json({ message: "Category deleted successfully", category: deletedCategory });
+        return correctResponse({
+            res,
+            statusCode: statusCode.OK,
+            msg: messageResponse.DELETED,
+            data:deletedCategory
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

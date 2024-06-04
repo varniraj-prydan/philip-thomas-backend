@@ -8,12 +8,16 @@ router.get('/', (req,res)=>{
 const AuthRoutes = require('./authRoutes/authRoute')
 const ProductRoutes = require('./productRouter/productRouter')
 const CategoryRoutes = require('./categoryRoutes/categoryRoute')
+const CartRoutes = require('./cartRoutes/cartRoute')
+const SizeRoutes = require('./sizeRoutes/sizeRoute')
 
 router.use(
     "/api",
     AuthRoutes,
     ProductRoutes,
-    CategoryRoutes
+    CategoryRoutes,
+    CartRoutes,
+    SizeRoutes
 )
 
 module.exports = router;
