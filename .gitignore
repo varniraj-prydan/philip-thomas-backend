@@ -10,6 +10,3 @@ logs/
 # IDE files
 .vscode/
 .idea/
-
-# Configuration files
-*.config.js
