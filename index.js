@@ -1,7 +1,7 @@
 const express = require('express');
 const dotenv = require("dotenv")
 dotenv.config()
-require("./helper/db.config")
+require("./src/helper/db.config")
 const bodyparser = require("body-parser")
 const cors = require("cors")
 const app = express();
@@ -10,7 +10,7 @@ app.use(cors())
 app.use(express.json())
 app.use(bodyparser.json()) 
 app.use("/src",express.static("./src"))
-app.use(require('./routes/route'))
+app.use(require('./src/routes/route'))
 
 // require('./uploads')
  
