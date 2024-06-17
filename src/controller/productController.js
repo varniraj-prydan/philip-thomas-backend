@@ -332,7 +332,7 @@ exports.editProduct = async (req, res) => {
 exports.getProducts = async (req, res) => {
     try {
         const categoryId = req.query.categoryId;
-        
+        console.log("API hitted")
         let products;
 
         // If categoryId is provided, fetch products by category
