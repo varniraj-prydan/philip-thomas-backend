@@ -4,9 +4,15 @@ dotenv.config()
 require("./helper/db.config")
 const bodyparser = require("body-parser")
 const cors = require("cors")
+const corsConfig = {
+    origin:"*",
+    credential:true,
+    methods:["GET","POST","PUT","DELETE"]
+}
 const app = express();
 const port = process.env.PORT || 8001
-app.use(cors())
+app.options("",cors(corsConfig))
+app.use(cors(corsConfig))
 app.use(express.json())
 app.use(bodyparser.json()) 
 app.use("/src",express.static("./src"))
