@@ -5,7 +5,7 @@ const { checkFeatureLimit, checkTrendingLimit } = require('../../middleware/limi
 const authorize = require('../../middleware/authorization');
 const router = express.Router();
 
-router.post('/product',upload.single('productImg'),authorize('admin'),checkFeatureLimit, checkTrendingLimit,addProduct)
+router.post('/product',upload.single('productImg'),checkFeatureLimit, checkTrendingLimit,addProduct)
 router.patch('/product/:productId',upload.single('productImg'),checkFeatureLimit, checkTrendingLimit,editProduct)
 router.get('/product',getProducts) 
 router.get('/product/:productId',getProductById)

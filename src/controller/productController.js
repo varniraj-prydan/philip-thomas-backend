@@ -240,7 +240,7 @@ const { correctResponse, statusCode, messageResponse } = require('../utils/respo
 exports.addProduct = async (req, res) => {
     try {
         const productImg = req.file;
-        const { productName, sizes, description, related, category_id, is_featured, is_trending } = req.body;
+        const { productName,productShortDescription, sizes, description, related, category_id, is_featured, is_trending } = req.body;
 
         const parsedRelated = JSON.parse(related);
         const parsedDescription = JSON.parse(description);
@@ -248,7 +248,8 @@ exports.addProduct = async (req, res) => {
 
         const newProduct = {
             productName,
-            productImg: productImg.path,
+            productShortDescription,
+            productImg: productImg?.path,
             sizes: parsedSizes,
             description: parsedDescription,
             related: parsedRelated,
@@ -280,7 +281,7 @@ exports.editProduct = async (req, res) => {
     try {
         const productId = req.params.productId;
         const productImg = req.file;
-        const { productName, sizes, description, related, category_id, is_featured, is_trending } = req.body;
+        const { productName,productShortDescription, sizes, description, related, category_id, is_featured, is_trending } = req.body;
 
         const existingProduct = await Product.findById(productId);
         if (!existingProduct) {
@@ -299,6 +300,7 @@ exports.editProduct = async (req, res) => {
 
         const updatedProductData = {
             ...(productName && { productName }),
+            ...(productShortDescription && { productShortDescription }),
             ...(productImg && { productImg: productImg.path }),
             ...(parsedSizes && { sizes: parsedSizes }),
             ...(parsedDescription && { description: parsedDescription }),
@@ -354,7 +356,7 @@ exports.getProducts = async (req, res) => {
 
         // Concatenate the server path with the productImg path in each product
         const server_path = process.env.SERVER_PATH; // Assuming this is the server path
-        const productsWithFullImagePath = products.map(product => ({
+        const productsWithFullImagePath = products?.map(product => ({
             ...product._doc,
             productImg: server_path + product.productImg // Concatenate the server path with productImg path
         }));
@@ -382,7 +384,12 @@ exports.getProductById = async (req, res) => {
     try {
         const productId = req.params.productId;
 
-        const product = await Product.findById(productId).populate("category_id");
+        const product = await Product.findById(productId)
+        .populate("category_id")
+        .populate({
+            path: 'related',
+            select: 'productImg productName productShortDescription _id createdAt updatedAt'
+        });
 
         if (!product) {
             return correctResponse({
@@ -408,7 +415,7 @@ exports.getProductById = async (req, res) => {
         return correctResponse({
             res,
             statusCode: statusCode.INTERNAL_SERVER_ERROR,
-            msg: error.message
+            msg: error
         });
     }
 };

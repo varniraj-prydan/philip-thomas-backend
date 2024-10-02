@@ -79,7 +79,6 @@ exports.getCart = async (req, res) => {
 
     try {
         const cart = await Cart.findOne({ userId }).populate('items.productId');
-
         if (!cart) {
             return correctResponse({
                 res,

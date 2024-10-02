@@ -16,10 +16,10 @@ exports.signup = async (req, res) => {
             msg: messageResponse.ADDED,
             data: user
         });
-
+        
     } catch (error) {
         // res.status(400).json({ message: error.message });
-        console.log(error)
+        console.log(error,"hello")
         return correctResponse({
             res,
             statusCode: statusCode.BAD_REQUEST,

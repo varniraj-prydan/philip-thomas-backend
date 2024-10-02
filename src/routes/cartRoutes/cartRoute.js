@@ -10,4 +10,4 @@ router.patch('/cart/:userId',cartController.updateCartItem);
 router.delete('/cart/remove/:userId',cartController.removeCartItem);
 router.delete('/cart/clear/:userId', cartController.clearCart);
 
-module.exports = router;
+module.exports = router; 
